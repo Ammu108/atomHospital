@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import type z from "zod";
@@ -7,6 +8,13 @@ import type { signupSchema } from "../schema/signup-schema";
 
 export const authService = {
 	async signUp(input: z.infer<typeof signupSchema>) {
+		if (input.password.length < 6) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: "Password must be at least 6 characters long.",
+			});
+		}
+
 		const hashedPassword = await bcrypt.hash(input.password, 10);
 
 		const user = await db
@@ -38,7 +46,10 @@ export const authService = {
 		);
 
 		if (!isPasswordValid) {
-			throw new Error("Invalid password");
+			throw new TRPCError({
+				code: "UNAUTHORIZED",
+				message: "Invalid email or password. Please try again.",
+			});
 		}
 
 		return user[0];

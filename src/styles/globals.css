@@ -52,7 +52,7 @@
 		--accent: hsl(217 91% 60% / 0.1); /* Subtle primary tint */
 		--accent-foreground: hsl(217 91% 60%);
 
-		--destructive: hsl(0 84% 60%);
+		--destructive: hsl(0, 84.2%, 60.2%);
 		--destructive-foreground: hsl(210 40% 98%);
 
 		--border: hsl(214 32% 91%);
@@ -91,7 +91,7 @@
 		--accent: hsl(217 91% 60% / 0.15);
 		--accent-foreground: hsl(210 40% 98%);
 
-		--destructive: hsl(0 62% 30%);
+		--destructive: hsl(0, 62.8%, 30.6%);
 		--destructive-foreground: hsl(210 40% 98%);
 
 		--border: hsl(217 33% 18%);

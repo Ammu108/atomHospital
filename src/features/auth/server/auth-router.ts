@@ -1,6 +1,9 @@
+import { TRPCError } from "@trpc/server";
 import { serialize } from "cookie";
+import { eq } from "drizzle-orm";
 import z from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { users } from "~/server/db/schema";
 import { signupSchema } from "../schema/signup-schema";
 import { createToken } from "./auth.utils";
 import { authService } from "./auth-service";
@@ -9,10 +12,25 @@ export const authRouter = createTRPCRouter({
 	signUp: publicProcedure
 		.input(signupSchema)
 		.mutation(async ({ input, ctx }) => {
+			const userExists = await ctx.db.query.users.findFirst({
+				where: eq(users.email, input.email),
+			});
+
+			if (userExists) {
+				throw new TRPCError({
+					code: "CONFLICT",
+					message:
+						"A user with this email already exists. Please use a different email.",
+				});
+			}
+
 			const user = await authService.signUp(input);
 
 			if (!user?.id) {
-				throw new Error("Failed to create user");
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to create user",
+				});
 			}
 
 			const token = createToken(user.id);
@@ -40,7 +58,10 @@ export const authRouter = createTRPCRouter({
 			const user = await authService.login(input.email, input.password);
 
 			if (!user?.id) {
-				throw new Error("Invalid user credentials");
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "Invalid user credentials",
+				});
 			}
 
 			const token = createToken(user.id);
