@@ -21,7 +21,7 @@ const geist = Geist({
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  void api.auth.me.prefetch();
+  await api.auth.me.prefetch();
 
   return (
     <html className={`${geist.variable}`} lang="en">

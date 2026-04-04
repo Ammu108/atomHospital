@@ -108,14 +108,35 @@ export default function Navbar() {
           )}
 
           {/* Hamburger — mobile */}
-          <button
-            aria-label="Toggle menu"
-            className="p-2 text-foreground md:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-            type="button"
-          >
-            {menuOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
-          </button>
+
+          <div className="flex items-center gap-2">
+            {profileData ? (
+              <ProfileDropdown
+                className="md:hidden"
+                data={profileData}
+                onSignOut={handleSignOut}
+              />
+            ) : (
+              <div className="md:hidden">
+                <Button
+                  className="w-full"
+                  onClick={handleSignUp}
+                  size="xs"
+                  variant="primary"
+                >
+                  Sign Up
+                </Button>
+              </div>
+            )}
+            <button
+              aria-label="Toggle menu"
+              className="p-2 text-foreground md:hidden"
+              onClick={() => setMenuOpen(!menuOpen)}
+              type="button"
+            >
+              {menuOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -145,24 +166,6 @@ export default function Navbar() {
               </Link>
             );
           })}
-          <div className="pt-4">
-            {profileData ? (
-              <ProfileDropdown
-                className="w-full"
-                data={profileData}
-                onSignOut={handleSignOut}
-              />
-            ) : (
-              <Button
-                className="w-full"
-                onClick={handleSignUp}
-                size="xs"
-                variant="primary"
-              >
-                Sign Up
-              </Button>
-            )}
-          </div>
         </div>
       </div>
     </nav>
