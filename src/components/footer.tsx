@@ -16,11 +16,10 @@ const SOCIAL_ICONS = [
 ];
 
 const COMPANY_LINKS = [
-	"About Us",
-	"Our Services",
-	"Doctors",
-	"Contact Us",
-	"Privacy Policy",
+	{ label: "About", href: "/about" },
+	{ label: "All Doctors", href: "/doctors" },
+	{ label: "Contact", href: "/contact" },
+	{ label: "Privacy Policy", href: "/privacy-policy" },
 ];
 
 export default function Footer() {
@@ -75,12 +74,12 @@ export default function Footer() {
 						<h3 className="font-bold text-foreground text-lg">Company</h3>
 						<ul className="flex flex-col gap-3">
 							{COMPANY_LINKS.map((link) => (
-								<li key={link}>
+								<li key={link.href}>
 									<Link
 										className="text-muted-foreground text-sm hover:text-foreground/80"
-										href="#"
+										href={link.href}
 									>
-										{link}
+										{link.label}
 									</Link>
 								</li>
 							))}

@@ -54,12 +54,12 @@ export default function ProfileDropdown({
 	const menuItems: MenuItem[] = [
 		{
 			label: "My Appointments",
-			href: "#",
+			href: "/my-appointments",
 			icon: <IconCalendar className="h-4 w-4" />,
 		},
 		{
 			label: "Terms & Policies",
-			href: "#",
+			href: "/privacy-policy",
 			icon: <FileText className="h-4 w-4" />,
 			external: true,
 		},

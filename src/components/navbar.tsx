@@ -11,9 +11,9 @@ import { Button } from "./ui/button";
 const NAV_LINKS = [
 	{ label: "Home", href: "/" },
 	{ label: "About", href: "/about" },
-	{ label: "All Doctors", href: "#all-doctors" },
-	{ label: "Contact", href: "#contact" },
-	{ label: "Book Appointment", href: "#book-appointment" },
+	{ label: "All Doctors", href: "/doctors" },
+	{ label: "Contact", href: "/contact" },
+	{ label: "Book Appointment", href: "/book-appointment" },
 ];
 
 export default function Navbar() {
