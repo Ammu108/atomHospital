@@ -1,0 +1,231 @@
+ATOM HOSPITAL - MONOREPO STRUCTURE
+==================================
+
+atom-hospital/                              # Monorepo root
+│
+├── 📁 apps/                                # Applications
+│   ├── web/                                # Patient-facing app (port 3000)
+│   │   ├── src/
+│   │   │   ├── app/                        # Next.js routing
+│   │   │   ├── components/                 # Web-specific components
+│   │   │   ├── features/                   # Web-specific features
+│   │   │   ├── styles/
+│   │   │   ├── lib/
+│   │   │   └── middleware.ts
+│   │   ├── public/
+│   │   ├── package.json                    # Depends on @repo/*
+│   │   ├── tsconfig.json
+│   │   ├── next.config.js
+│   │   └── .env.local
+│   │
+│   └── admin/                              # Admin dashboard (port 3001) - NEW
+│       ├── src/
+│       │   ├── app/
+│       │   │   ├── page.tsx                # Dashboard home
+│       │   │   ├── layout.tsx              # Root layout
+│       │   │   ├── users/                  # User management
+│       │   │   ├── doctors/                # Doctor management
+│       │   │   ├── appointments/           # Appointment management
+│       │   │   └── settings/               # System settings
+│       │   ├── middleware.ts               # Admin protection
+│       │   └── styles/
+│       ├── public/
+│       ├── package.json                    # Depends on @repo/*
+│       ├── tsconfig.json
+│       ├── next.config.js
+│       └── .env.local
+│
+├── 📁 packages/                            # Shared packages
+│   ├── db/                                 # Database layer
+│   │   ├── src/
+│   │   │   ├── index.ts                    # DB connection export
+│   │   │   ├── schema.ts                   # Drizzle schema
+│   │   │   ├── user.ts                     # User queries
+│   │   │   └── index.ts                    # Exports
+│   │   ├── migrations/                     # Drizzle migrations
+│   │   ├── package.json                    # DEP: drizzle-orm, postgres
+│   │   ├── tsconfig.json
+│   │   └── drizzle.config.ts
+│   │
+│   ├── api/                                # tRPC backend
+│   │   ├── src/
+│   │   │   ├── index.ts                    # Main exports
+│   │   │   ├── trpc.ts                     # tRPC setup, procedures
+│   │   │   ├── root.ts                     # Main router
+│   │   │   ├── server.ts                   # Next.js handler
+│   │   │   ├── react.tsx                   # React client setup
+│   │   │   ├── query-client.ts
+│   │   │   └── routers/
+│   │   │       ├── post.ts                 # Post CRUD
+│   │   │       └── auth-router.ts          # Auth endpoints
+│   │   ├── package.json                    # DEP: @trpc/*, @repo/db, @repo/auth
+│   │   └── tsconfig.json
+│   │
+│   ├── auth/                               # Authentication
+│   │   ├── src/
+│   │   │   ├── index.ts                    # Main exports
+│   │   │   ├── types.ts                    # Auth types
+│   │   │   ├── auth.utils.ts               # JWT, token verification
+│   │   │   ├── auth-service.ts             # Signup/login logic
+│   │   │   └── schema/
+│   │   │       └── signup-schema.ts        # Zod schemas
+│   │   ├── package.json                    # DEP: bcryptjs, jsonwebtoken, @repo/db
+│   │   └── tsconfig.json
+│   │
+│   └── ui/                                 # Shared UI components
+│       ├── src/
+│       │   ├── index.ts                    # Main exports
+│       │   ├── navbar.tsx
+│       │   ├── footer.tsx
+│       │   ├── ui/
+│       │   │   ├── button.tsx
+│       │   │   ├── card.tsx
+│       │   │   ├── input.tsx
+│       │   │   ├── label.tsx
+│       │   │   └── dropdown-menu.tsx
+│       │   └── kokonutui/
+│       │       └── profile-dropdown.tsx
+│       ├── package.json                    # DEP: React, Tailwind, @base-ui/react
+│       └── tsconfig.json
+│
+├── 🔧 Configuration Files
+│   ├── pnpm-workspace.yaml                 # Workspace definition
+│   ├── tsconfig.json                       # Root TS config with @repo/* aliases
+│   ├── package.json                        # Monorepo root config
+│   ├── .env                                # Environment variables
+│   ├── biome.jsonc                         # Linting config
+│   ├── README.md                           # Main documentation
+│   └── 📄 MONOREPO_REFACTORING_STATUS.md  # This refactoring status
+│   └── 📄 MONOREPO_MIGRATION_GUIDE.md     # How to continue
+│   └── 📄 MONOREPO_STRUCTURE.txt          # This file
+│
+└── 📁 .git/
+    └── (Git repository for entire monorepo)
+
+
+KEY DEPENDENCIES & RELATIONSHIPS
+==================================
+
+apps/web depends on:
+  → @repo/api  (tRPC procedures, hooks)
+  → @repo/auth (types, utils)
+  → @repo/db   (types)
+  → @repo/ui   (components)
+
+apps/admin depends on:
+  → @repo/api  (tRPC procedures, hooks)
+  → @repo/auth (types, utils)
+  → @repo/db   (types)
+  → @repo/ui   (components)
+
+@repo/api depends on:
+  → @repo/db   (schema, db connection)
+  → @repo/auth (auth service, utils)
+
+@repo/auth depends on:
+  → @repo/db   (schema for queries)
+
+@repo/ui depends on:
+  → React, TailwindCSS
+
+@repo/db depends on:
+  → Drizzle ORM, PostgreSQL
+
+
+PATH ALIASES (@repo/*)
+=======================
+
+@repo/db         → packages/db/src/index.ts
+@repo/api        → packages/api/src/index.ts
+@repo/auth       → packages/auth/src/utils.ts
+@repo/ui         → packages/ui/src/index.ts
+
+~/               → apps/web/src/* (web app only)
+
+
+WORKSPCE COMMANDS
+==================
+
+Development:
+  pnpm dev              # Run all apps in parallel
+  pnpm dev -F web       # Run only web app
+  pnpm dev -F admin     # Run only admin app
+
+Building:
+  pnpm build            # Build all apps
+  pnpm build -F web
+  pnpm build -F admin
+
+Code Quality:
+  pnpm lint             # Lint all
+  pnpm format           # Format all
+  pnpm typecheck        # Type check all
+
+Database:
+  pnpm db:generate      # Generate migrations
+  pnpm db:push          # Apply migrations
+  pnpm db:migrate       # Run migrations
+  pnpm db:studio        # Open Drizzle Studio
+
+Specific Package:
+  pnpm -F @repo/api run build
+  pnpm -F @repo/db run push
+
+
+WHAT'S NEW IN THIS REFACTORING
+================================
+
+✅ Created apps/admin/                    New admin dashboard
+✅ Extracted packages/api/                Shared tRPC backend
+✅ Extracted packages/db/                 Shared database layer
+✅ Extracted packages/auth/               Shared auth logic
+✅ Extracted packages/ui/                 Shared UI components
+✅ Configured pnpm workspaces             Monorepo linking
+✅ Setup path aliases                     @repo/* imports
+✅ Created admin app dashboard            Basic admin UI
+✅ Created migration guides               Documentation
+
+🟡 IN PROGRESS:
+  ⏳ Fix remaining import paths            Many files still use old imports
+  ⏳ Implement role-based auth             Need ADMIN_ONLY procedures
+  ⏳ Add admin middleware                  Protect admin routes
+
+❌ TODO:
+  [ ] Test web app works with packages
+  [ ] Test admin app works with packages
+  [ ] Implement admin protection middleware
+  [ ] Create admin management pages
+  [ ] Clean up old duplicate files
+  [ ] Document admin procedures
+
+
+NEXT STEPS TO COMPLETE REFACTORING
+====================================
+
+1. Run: pnpm install --force
+2. Run: pnpm build
+3. Fix import errors as they appear
+4. Run: pnpm dev
+5. Test both apps work
+6. Implement role-based auth
+7. Add admin middleware
+8. Delete old duplicate files
+
+
+QUICK START
+============
+
+# Install dependencies
+pnpm install --force
+
+# Run development servers (web on 3000, admin on 3001)
+pnpm dev
+
+# Or run specific app
+cd apps/web && pnpm dev
+
+# Check for import issues
+pnpm build
+
+# Format and lint
+pnpm format && pnpm lint
