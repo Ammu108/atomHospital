@@ -3,6 +3,8 @@ import "~/styles/globals.css";
 import { TRPCReactProvider } from "@repo/api/react";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { ThemeProvider } from "~/components/providers/theme-provider";
+import { TooltipProvider } from "~/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: "Atom Hospital - Admin Dashboard",
@@ -21,7 +23,18 @@ export default async function RootLayout({
   return (
     <html className={`${geist.variable}`} lang="en">
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <TooltipProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              disableTransitionOnChange
+              enableSystem
+            >
+              {children}
+            </ThemeProvider>
+          </TooltipProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );

@@ -1,10 +1,10 @@
-import { createTRPCRouter, publicProcedure } from "../trpc";
 import { authService, createToken, signupSchema } from "@repo/auth";
 import { users } from "@repo/db";
 import { TRPCError } from "@trpc/server";
 import { serialize } from "cookie";
 import { eq } from "drizzle-orm";
 import z from "zod";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const authRouter = createTRPCRouter({
 	signUp: publicProcedure
@@ -31,7 +31,7 @@ export const authRouter = createTRPCRouter({
 				});
 			}
 
-			const token = createToken(user.id, ctx.jwtSecret);
+			const token = createToken(user.id, ctx.jwtSecret, user.role);
 
 			const cookie = serialize("token", token, {
 				httpOnly: true,
@@ -62,7 +62,7 @@ export const authRouter = createTRPCRouter({
 				});
 			}
 
-			const token = createToken(user.id, ctx.jwtSecret);
+			const token = createToken(user.id, ctx.jwtSecret, user.role);
 
 			const cookie = serialize("token", token, {
 				httpOnly: true,
