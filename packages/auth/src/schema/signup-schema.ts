@@ -5,6 +5,7 @@ export const signupSchema = z.object({
 		.string()
 		.min(1, "Name is required")
 		.max(256, "Name must be at most 256 characters"),
+	role: z.enum(["user", "admin"]).default("user"),
 	email: z.string().email(),
 	password: z.string().min(6, "Password must be at least 6 characters long."),
 });
