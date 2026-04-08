@@ -44,7 +44,10 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div
+      className={cn("m-4 flex w-full max-w-sm flex-col gap-6", className)}
+      {...props}
+    >
       <Card>
         <CardHeader>
           <CardTitle>Login to admin dashboard</CardTitle>
