@@ -112,4 +112,23 @@ export const authRouter = createTRPCRouter({
 
 		return user;
 	}),
+
+	getAllUsers: publicProcedure.query(async ({ ctx }) => {
+		if (!ctx.user || ctx.user.role !== "admin") {
+			throw new TRPCError({
+				code: "FORBIDDEN",
+				message: "Only admins can view users",
+			});
+		}
+
+		return ctx.db.query.users.findMany({
+			columns: {
+				id: true,
+				name: true,
+				email: true,
+				role: true,
+				createdAt: true,
+			},
+		});
+	}),
 });
