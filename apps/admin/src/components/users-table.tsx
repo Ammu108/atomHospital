@@ -1,6 +1,7 @@
 "use client";
 
 import { EllipsisVerticalIcon, SearchIcon } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -27,23 +28,42 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { api } from "~/trpc/react";
+import { ConfirmActionDialog } from "./confirm-action-dialog";
 
 const roleOptions = ["admin", "editor", "viewer"];
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  createdAt: Date;
-};
-
-type userDataProps = {
-  users: User[];
-};
-
-export function UsersTable({ users }: userDataProps) {
+export function UsersTable() {
+  const { data: users } = api.auth.getAllUsers.useQuery();
   const filteredUsers = users;
+  const utils = api.useUtils();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const deleteUserMutation = api.auth.deleteUser.useMutation({
+    onSuccess: async () => {
+      await utils.auth.getAllUsers.invalidate();
+      setDeleteDialogOpen(false);
+      setSelectedUser(null);
+      console.log("deletd successfully.");
+    },
+    onError: (err) => {
+      console.error("Deleting user failed:", err);
+    },
+  });
+
+  const handleDelete = (id: string, name: string) => {
+    setSelectedUser({ id, name });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!selectedUser) return;
+    deleteUserMutation.mutate({ id: selectedUser.id });
+  };
 
   return (
     <Card>
@@ -101,7 +121,7 @@ export function UsersTable({ users }: userDataProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.length === 0 ? (
+            {filteredUsers?.length === 0 ? (
               <TableRow>
                 <TableCell
                   className="text-center text-muted-foreground"
@@ -111,7 +131,7 @@ export function UsersTable({ users }: userDataProps) {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredUsers.map((user) => (
+              filteredUsers?.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
@@ -129,18 +149,29 @@ export function UsersTable({ users }: userDataProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
-                      <DropdownMenuTrigger
-                        render={
-                          <Button size="icon-sm" variant="ghost">
-                            <EllipsisVerticalIcon className="size-4" />
-                            <span className="sr-only">Open actions</span>
+                      {user.isDeleted === true ? (
+                        <div className="flex justify-end">
+                          <Button type="button" variant="destructive">
+                            Deleted
                           </Button>
-                        }
-                      />
+                        </div>
+                      ) : (
+                        <DropdownMenuTrigger
+                          render={
+                            <Button size="icon-sm" variant="ghost">
+                              <EllipsisVerticalIcon className="size-4" />
+                              <span className="sr-only">Open actions</span>
+                            </Button>
+                          }
+                        />
+                      )}
                       <DropdownMenuContent align="end" className="w-36">
                         <DropdownMenuItem>View Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Copy Email</DropdownMenuItem>
-                        <DropdownMenuItem>Message User</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(user.id, user.name)}
+                        >
+                          Delete User
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -150,6 +181,19 @@ export function UsersTable({ users }: userDataProps) {
           </TableBody>
         </Table>
       </CardContent>
+
+      <ConfirmActionDialog
+        cancelText="Cancel"
+        confirmDisabled={!selectedUser}
+        confirmLoading={deleteUserMutation.isPending}
+        confirmText="Continue"
+        description={`This action is permanent and cannot be undone. ${selectedUser?.name ?? "This user"} will be deleted from the system.`}
+        onCancel={() => setSelectedUser(null)}
+        onConfirm={handleDeleteConfirm}
+        onOpenChange={setDeleteDialogOpen}
+        open={deleteDialogOpen}
+        title="Delete user permanently?"
+      />
     </Card>
   );
 }

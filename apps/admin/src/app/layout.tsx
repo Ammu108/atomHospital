@@ -1,10 +1,10 @@
 import "~/styles/globals.css";
 
-import { TRPCReactProvider } from "@repo/api/react";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "~/components/providers/theme-provider";
 import { TooltipProvider } from "~/components/ui/tooltip";
+import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
   title: "Atom Hospital - Admin Dashboard",
