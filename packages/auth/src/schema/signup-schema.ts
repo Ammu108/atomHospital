@@ -9,3 +9,7 @@ export const signupSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(6, "Password must be at least 6 characters long."),
 });
+
+export const deleteUserSchema = z.object({
+	id: z.string().uuid(), // Ensures the frontend sends a valid UUID
+});

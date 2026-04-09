@@ -26,7 +26,8 @@ export function LoginForm({
     onSuccess() {
       utils.auth.me.invalidate();
       console.log("admin logged in successfully.");
-      router.push("/");
+      router.replace("/");
+      router.refresh();
     },
     onError: (error) => {
       console.error("Login failed:", error);
@@ -90,7 +91,7 @@ export function LoginForm({
                 />
               </Field>
               <Field>
-                <Button onClick={handleSubmit} type="submit">
+                <Button type="submit">
                   {login.isPending ? "Logging in..." : "Login"}
                 </Button>
               </Field>

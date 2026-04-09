@@ -1,4 +1,9 @@
-import { authService, createToken, signupSchema } from "@repo/auth";
+import {
+	authService,
+	createToken,
+	deleteUserSchema,
+	signupSchema,
+} from "@repo/auth";
 import { users } from "@repo/db";
 import { TRPCError } from "@trpc/server";
 import { serialize } from "cookie";
@@ -122,13 +127,45 @@ export const authRouter = createTRPCRouter({
 		}
 
 		return ctx.db.query.users.findMany({
+			where: (u, { eq }) => eq(u.role, "user"),
 			columns: {
 				id: true,
 				name: true,
 				email: true,
 				role: true,
 				createdAt: true,
+				isDeleted: true,
 			},
 		});
 	}),
+
+	deleteUser: publicProcedure
+		.input(deleteUserSchema)
+		.mutation(async ({ input, ctx }) => {
+			if (!ctx.user || ctx.user.role !== "admin") {
+				throw new TRPCError({
+					code: "FORBIDDEN",
+					message: "Only admins can view users",
+				});
+			}
+
+			const userExist = await ctx.db.query.users.findFirst({
+				where: eq(users.id, input.id),
+			});
+
+			if (!userExist) {
+				throw new TRPCError({
+					code: "FORBIDDEN",
+					message: "Only admins can view users.",
+				});
+			}
+
+			return await ctx.db
+				.update(users)
+				.set({
+					isDeleted: true,
+					deletedAt: new Date(),
+				})
+				.where(eq(users.id, input.id));
+		}),
 });
